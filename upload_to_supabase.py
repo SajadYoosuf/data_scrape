@@ -55,8 +55,15 @@ def load_data():
             # We don't have total electorate/votes strictly at the top level for all years, 
             # we will calculate it from the constituencies
             total_electorate = sum(c.get('electorate', 0) or 0 for c in data)
-            total_votes = sum(c.get('votes_polled', 0) or 0 for c in data)
             
+            # Calculate total votes by summing votes_polled if available, otherwise sum candidate votes
+            total_votes = 0
+            for c in data:
+                vp = c.get('votes_polled', 0) or 0
+                if vp == 0:
+                    vp = sum(cand.get('votes', 0) or 0 for cand in c.get('all_candidates', []))
+                total_votes += vp
+                
             cursor.execute("""
                 INSERT INTO elections (year, total_constituencies, total_electorate, total_votes_polled)
                 VALUES (%s, %s, %s, %s)
@@ -75,6 +82,11 @@ def load_data():
         for const in data:
             const_name = const.get('constituency_name', '').strip()
             
+            # Calculate constituency votes polled if missing
+            vp = const.get('votes_polled', 0) or 0
+            if vp == 0:
+                vp = sum(cand.get('votes', 0) or 0 for cand in const.get('all_candidates', []))
+
             # Prepare constituency data
             const_data = {
                 "election_year": year,
@@ -82,7 +94,7 @@ def load_data():
                 "constituency_name": const_name,
                 "seats": const.get('seats', 1),
                 "electorate": const.get('electorate', 0) or 0,
-                "votes_polled": const.get('votes_polled', 0) or 0,
+                "votes_polled": vp,
                 "nota_votes": const.get('nota_votes', 0) or 0
             }
             
