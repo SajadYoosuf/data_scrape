@@ -39,12 +39,7 @@ The data acquisition layer for the Kerala Election Comparison System. This modul
 pip install pdfplumber pandas psycopg2-binary python-dotenv
 ```
 
-### 2. Environment
-Ensure your `.env` contains the Supabase connection details:
-```env
-SUPABASE_URL=your_url
-SUPABASE_KEY=your_key
-DB_URL=postgresql://postgres.xxx:pass@aws-1.pooler.supabase.com:5432/postgres
+
 ```
 
 ### 3. Pipeline Execution
